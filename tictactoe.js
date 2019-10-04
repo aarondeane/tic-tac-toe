@@ -59,23 +59,44 @@ function checkWin(player, position) {
   }  
 }
 
+function checkDraw() {
+  const keys = Object.keys(board);
+  for (let key of keys) {
+    if (board[key] !== 'O' && board[key] !== 'X') {
+      return false;
+    }
+  }
+  return true;
+}
 
 function playTurn(player) {
   totalPlays+=1;
   readline.question(`Your turn ${player}, enter a position -> `, (position) => {
+    if (!'123456789'.includes(position)) {
+      console.log('Please enter a valid position');
+      playTurn(player);
+    }
     if (validateTurn(position)) {
       markBoard(position, player);
     } else {
-      console.log('Sorry that is not a valid play');
+      console.log('Sorry that is not an available play');
       playTurn(player);
     }
 
-    if (totalPlays > 2 && checkWin(player, position) === true) {
-      printBoard();
-      console.log(`Congrats! Player ${player} has won!`);
-      readline.close();
-      return;
-    }
+    if (totalPlays > 4) {//Only check for a win or draw after one player has gone at least 3 times
+      if(checkWin(player, position)) {
+        printBoard();
+        console.log(`Congrats! Player ${player} has won!`);
+        readline.close();
+        return;
+      }
+      if (checkDraw()) {debugger;
+        printBoard();
+        console.log('Looks like a Draw!');
+        readline.close();
+        return;
+      }  
+  }
     printBoard();
     player === 'X' ? playTurn('O') : playTurn('X');
   })
